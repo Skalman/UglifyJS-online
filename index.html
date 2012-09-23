@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<!--
+			Wrapper created by Dan Wolff (danwolff.se)
+			This wrapper is in the public domain. Attribution not required but appreciated.
+
+			UglifyJS is released under the BSD license, copyright Mihai Bazon.
+			For more information, see https://github.com/mishoo/UglifyJS/.
+		 -->
+		<title>UglifyJS: Online JavaScript minifier</title>
+		<script>
+			var module = {},
+				all_exports = {
+					'parse-js': {},
+					'process': {},
+					'squeeze-more': {},
+					'consolidator': {}
+				};
+
+			function require( module ) {
+				module = module.replace( /^\.\/(lib\/)?/, '' );
+				return all_exports[module];
+			}
+		</script>
+
+		<script> exports = all_exports['parse-js']; </script>
+		<script src="https://raw.github.com/mishoo/UglifyJS/master/lib/parse-js.js"></script>
+
+		<script> exports = all_exports['process']; </script>
+		<script src="https://raw.github.com/mishoo/UglifyJS/master/lib/process.js"></script>
+
+		<script> exports = all_exports['squeeze-more']; </script>
+		<script src="https://raw.github.com/mishoo/UglifyJS/master/lib/squeeze-more.js"></script>
+
+		<script> exports = all_exports['consolidator']; </script>
+		<script src="https://raw.github.com/mishoo/UglifyJS/master/lib/consolidator.js"></script>
+
+		<script src="https://raw.github.com/mishoo/UglifyJS/master/uglify-js.js"></script>
+
+		<style>
+			.hidden {
+				display: none;
+			}
+
+			html, body {
+				height: 100%;
+				margin: 0;
+				min-height: 18em;
+				padding: 0;
+				font: 100%/1.5 Arial, sans-serif;
+			}
+
+			header {
+				min-height: 4em;
+			}
+
+			h1 {
+				font: bold 2em/1 Arial, sans-serif;
+				margin: 0;
+				padding: 0.5em;
+			}
+
+			.col {
+				float: left;
+				height: 100%;
+				margin-top: -4em;
+				width: 50%;
+			}
+
+			.in-container {
+				height: 26em;
+				height: -moz-calc( 100% - 8em );
+				height: -webkit-calc( 100% - 8em );
+				height: calc( 100% - 8em );
+				margin-bottom: 0.25em;
+			}
+
+			.in-container, #info, #out-container {
+				margin-top: 4em;
+				margin-left: 1em;
+			}
+
+			#info, #out-container {
+				margin-right: 1em;
+			}
+
+			#in {
+				height: 99%;
+				width: 99%;
+				box-sizing: -moz-border-box;
+				box-sizing: border-box;
+			}
+
+			#go {
+				float: right;
+				font-size: 1.2em;
+				font-weight: bold;
+			}
+
+			#out {
+				border: none;
+				padding: none;
+				background: transparent;
+			}
+
+			pre {
+				word-wrap: break-word;
+				overflow-wrap: break-word;
+				/*white-space: pre-wrap;*/
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<h1>UglifyJS: Online JavaScript minifier</h1>
+		</header>
+		<div class="col">
+			<div class="in-container">
+				<textarea id="in" rows="15" cols="80" spellcheck="off">// Your code goes here
+
+
+</textarea>
+			</div>
+			<button id="go">Minify</button>
+		</div>
+
+		<div class="col">
+			<div id="info">
+				<p>
+					<strong>UglifyJS</strong> is an excellent tool to help you minify your JavaScript! It's a tried and tested tool, used by libraries such as jQuery.</p>
+
+				<p>
+					This is a simple wrapper for the browser around the minifier; the hard work is done by <a href="http://lisperator.net/">Mihai Bazon</a>.
+					If you need an automated solution, I suggest either checking out the <a href="https://github.com/mishoo/UglifyJS">source code</a>, intended for Node.JS, or <a href="http://marijnhaverbeke.nl/uglifyjs">Marijns version</a> with an HTTP API.</p>
+
+				<p>
+					Do you want to help improve this tool? It's on <a href="https://github.com/Skalman/UglifyJS-online">Github</a>.</p>
+
+				<!-- <hr /> -->
+
+				<p><small>
+					This wrapper for the browser was created by <a href="http://danwolff.se/">Dan Wolff</a>.</small></p>
+
+			</div>
+
+			<div id="out-container" class="hidden">
+				<p>
+					The minified output</p>
+				<pre id="out"></pre>
+			</div>
+		</div>
+
+
+		<script>
+			function $(id) {
+				return document.getElementById( id );
+			}
+
+			$( 'go' ).onclick = function () {
+				var undef,
+					res = uglify( $('in').value ) || '/* no output! */',
+					$out = $( 'out' );
+
+				$( 'info' ).className = 'hidden';
+				$( 'out-container' ).className = '';
+
+				if ( $out.textContent !== undef ) {
+					$out.textContent = res;
+				} else {
+					$out.innerText = res;
+				}
+				return false;
+			};
+		</script>
+	</body>
+</html>
