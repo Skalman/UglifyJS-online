@@ -1,178 +1,322 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8" />
-		<!--
-			Wrapper created by Dan Wolff (danwolff.se)
-			This wrapper is in the public domain. Attribution not required but appreciated.
+<meta charset="utf-8" />
+<!--
+	Wrapper created by Dan Wolff (danwolff.se)
+	This wrapper is in the public domain. Attribution not required but appreciated.
 
-			UglifyJS is released under the BSD license, copyright Mihai Bazon.
-			For more information, see https://github.com/mishoo/UglifyJS/.
-		 -->
-		<title>UglifyJS: Online JavaScript minifier</title>
-		<script>
-			var module = {},
-				all_exports = {
-					'parse-js': {},
-					'process': {},
-					'squeeze-more': {},
-					'consolidator': {}
-				};
+	UglifyJS is released under the BSD license, copyright Mihai Bazon.
+	For more information, see https://github.com/mishoo/UglifyJS/.
+ -->
 
-			function require( module ) {
-				module = module.replace( /^\.\/(lib\/)?/, '' );
-				return all_exports[module];
-			}
-		</script>
+<!-- META DATA, SCRIPTS, STYLES -->
+<title>UglifyJS: Online JavaScript minifier</title>
 
-		<script> exports = all_exports['parse-js']; </script>
-		<script src="https://raw.github.com/mishoo/UglifyJS/master/lib/parse-js.js"></script>
+<script src="https://raw.github.com/mishoo/UglifyJS2/master/lib/utils.js"></script>
+<script src="https://raw.github.com/mishoo/UglifyJS2/master/lib/ast.js"></script>
+<script src="https://raw.github.com/mishoo/UglifyJS2/master/lib/parse.js"></script>
+<script src="https://raw.github.com/mishoo/UglifyJS2/master/lib/transform.js"></script>
+<script src="https://raw.github.com/mishoo/UglifyJS2/master/lib/scope.js"></script>
+<script src="https://raw.github.com/mishoo/UglifyJS2/master/lib/output.js"></script>
+<script src="https://raw.github.com/mishoo/UglifyJS2/master/lib/compress.js"></script>
+<!-- The following aren't needed:
+<script src="https://raw.github.com/mishoo/UglifyJS2/master/lib/sourcemap.js"></script>
+<script src="https://raw.github.com/mishoo/UglifyJS2/master/lib/mozilla-ast.js"></script>
+-->
 
-		<script> exports = all_exports['process']; </script>
-		<script src="https://raw.github.com/mishoo/UglifyJS/master/lib/process.js"></script>
+<script>
+	var default_options = {};
+	function uglify(code, options) {
+		if (!options) {
+			options = {};
+		}
+		var parse_options = defaults(options.parse, default_options.parse, true);
+		var compress_options = defaults(options.compress, default_options.compress, true);
+		var output_options = defaults(options.output, default_options.output, true);
 
-		<script> exports = all_exports['squeeze-more']; </script>
-		<script src="https://raw.github.com/mishoo/UglifyJS/master/lib/squeeze-more.js"></script>
+		// 1. Parse
+		var toplevel_ast = parse(code);
+		toplevel_ast.figure_out_scope();
 
-		<script> exports = all_exports['consolidator']; </script>
-		<script src="https://raw.github.com/mishoo/UglifyJS/master/lib/consolidator.js"></script>
+		// 2. Compress
+		var compressor = Compressor(compress_options);
+		var compressed_ast = toplevel_ast.transform(compressor);
 
-		<script src="https://raw.github.com/mishoo/UglifyJS/master/uglify-js.js"></script>
+		// 3. Mangle
+		compressed_ast.figure_out_scope();
+		compressed_ast.compute_char_frequency();
+		compressed_ast.mangle_names();
 
-		<style>
-			.hidden {
-				display: none;
-			}
+		// 4. Generate output
+		code = compressed_ast.print_to_string(output_options);
 
-			html, body {
-				height: 100%;
-				margin: 0;
-				min-height: 18em;
-				padding: 0;
-				font: 100%/1.5 Arial, sans-serif;
-			}
+		return code;
+	}
+</script>
 
-			header {
-				min-height: 4em;
-			}
+<style>
+	.hidden {
+		display: none;
+	}
 
-			h1 {
-				font: bold 2em/1 Arial, sans-serif;
-				margin: 0;
-				padding: 0.5em;
-			}
+	html, body {
+		height: 100%;
+		margin: 0;
+		min-height: 18em;
+		padding: 0;
+		font: 100%/1.5 Arial, sans-serif;
+	}
 
-			.col {
-				float: left;
-				height: 100%;
-				margin-top: -4em;
-				width: 50%;
-			}
+	header {
+		min-height: 4em;
+	}
 
-			.in-container {
-				height: 26em;
-				height: -moz-calc( 100% - 8em );
-				height: -webkit-calc( 100% - 8em );
-				height: calc( 100% - 8em );
-				margin-bottom: 0.25em;
-			}
+	h1 {
+		font: bold 2em/1 Arial, sans-serif;
+		margin: 0;
+		padding: 0.5em;
+	}
 
-			.in-container, #info, #out-container {
-				margin-top: 4em;
-				margin-left: 1em;
-			}
+	.col {
+		float: left;
+		height: 100%;
+		margin-top: -4em;
+		width: 50%;
+	}
 
-			#info, #out-container {
-				margin-right: 1em;
-			}
+	.in-container {
+		height: 26em;
+		height: -moz-calc( 100% - 8em );
+		height: -webkit-calc( 100% - 8em );
+		height: calc( 100% - 8em );
+		margin-bottom: 0.25em;
+	}
 
-			#in {
-				height: 99%;
-				width: 99%;
-				box-sizing: -moz-border-box;
-				box-sizing: border-box;
-			}
+	.in-container, #info, #out-container {
+		margin-top: 4em;
+		margin-left: 1em;
+	}
 
-			#go {
-				float: right;
-				font-size: 1.2em;
-				font-weight: bold;
-			}
+	#info, #out-container {
+		margin-right: 1em;
+	}
 
-			#out {
-				border: none;
-				padding: none;
-				background: transparent;
-			}
+	#in, #options {
+		height: 99%;
+		width: 99%;
+		box-sizing: -moz-border-box;
+		box-sizing: border-box;
+	}
 
-			pre {
-				word-wrap: break-word;
-				overflow-wrap: break-word;
-				/*white-space: pre-wrap;*/
-			}
-		</style>
-	</head>
-	<body>
-		<header>
-			<h1>UglifyJS: Online JavaScript minifier</h1>
-		</header>
-		<div class="col">
-			<div class="in-container">
-				<textarea id="in" rows="15" cols="80" spellcheck="off">// Your code goes here
+	#options-btn.active {
+		font-weight: bold;
+	}
+
+	#go {
+		float: right;
+		font-size: 1.2em;
+		font-weight: bold;
+	}
+
+	#out {
+		border: none;
+		padding: none;
+		background: transparent;
+	}
+
+	pre {
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+		/*white-space: pre-wrap;*/
+	}
+</style>
+
+<!-- MAIN CONTENT -->
+<header>
+	<h1>UglifyJS: Online JavaScript minifier</h1>
+</header>
+<div class="col">
+	<div class="in-container">
+		<textarea id="in" rows="15" cols="80" spellcheck="off">// Your code goes here
 
 
 </textarea>
-			</div>
-			<button id="go">Minify</button>
-		</div>
+		<textarea class="hidden" id="options" rows="15" cols="80" spellcheck="off">// Documentation of the options is available at https://github.com/mishoo/UglifyJS2
+{
+  parse: {
+    strict: true,
+  },
+  compress: {
+    sequences     : true,
+    properties    : true,
+    dead_code     : true,
+    drop_debugger : true,
+    unsafe        : true,
+    unsafe_comps  : true,
+    conditionals  : true,
+    comparisons   : true,
+    evaluate      : false,
+    booleans      : true,
+    loops         : true,
+    unused        : true,
+    hoist_funs    : true,
+    hoist_vars    : false,
+    if_return     : true,
+    join_vars     : true,
+    cascade       : true,
+    side_effects  : true,
 
-		<div class="col">
-			<div id="info">
-				<p>
-					<strong>UglifyJS</strong> is an excellent tool to help you minify your JavaScript! It's a tried and tested tool, used by libraries such as jQuery.</p>
+    warnings      : true,
+    global_defs   : {}
+  },
+  output: {
+    indent_start  : 0,
+    indent_level  : 4,
+    quote_keys    : false,
+    space_colon   : true,
+    ascii_only    : false,
+    inline_script : true,
+    width         : 80,
+    max_line_len  : 32000,
+    ie_proof      : true,
+    beautify      : false,
+    source_map    : null,
+    bracketize    : false,
+    semicolons    : true,
+    comments      : false,
+    preserve_line : false
+  }
+}
+</textarea>
+		<button id="options-btn">Options</button>
+	</div>
+	<button id="go">Minify</button>
+</div>
 
-				<p>
-					This is a simple wrapper for the browser around the minifier; the hard work is done by <a href="http://lisperator.net/">Mihai Bazon</a>.
-					If you need an automated solution, I suggest either checking out the <a href="https://github.com/mishoo/UglifyJS">source code</a>, intended for Node.JS, or <a href="http://marijnhaverbeke.nl/uglifyjs">Marijns version</a> with an HTTP API.</p>
+<div class="col">
+	<div id="info">
+		<p>
+			<strong>UglifyJS 2</strong> is an excellent tool to help you minify your JavaScript! It's a tried and tested tool, used by libraries such as jQuery.</p>
 
-				<p>
-					Do you want to help improve this tool? It's on <a href="https://github.com/Skalman/UglifyJS-online">Github</a>.</p>
+		<p>
+			This is a simple wrapper for the browser around the minifier; the hard work is done by <a href="http://lisperator.net/">Mihai Bazon</a>.
+			If you need an automated solution, I suggest checking out the <a href="https://github.com/mishoo/UglifyJS2">source code</a>, intended for Node.JS.</p>
 
-				<!-- <hr /> -->
+		<p>
+			Do you want to help improve this tool? It's on <a href="https://github.com/Skalman/UglifyJS-online">Github</a>.</p>
 
-				<p><small>
-					This wrapper for the browser was created by <a href="http://danwolff.se/">Dan Wolff</a>.</small></p>
+		<!-- <hr /> -->
 
-			</div>
+		<p><small>
+			This wrapper for the browser was created by <a href="http://danwolff.se/">Dan Wolff</a>.</small></p>
 
-			<div id="out-container" class="hidden">
-				<p>
-					The minified output</p>
-				<pre id="out"></pre>
-			</div>
-		</div>
+	</div>
+
+	<div id="out-container" class="hidden">
+		<p>
+			The minified output (saved <span id="saved"></span> %)</p>
+		<pre id="out"></pre>
+	</div>
+</div>
 
 
-		<script>
-			function $(id) {
-				return document.getElementById( id );
+<!-- SCRIPT TO HANDLE THE UI -->
+<script>
+(function () {
+
+	var undef, uglify_options;
+	var $options_btn = $( 'options-btn' );
+	var $go = $( 'go' );
+	var $options = $( 'options' );
+	var $out = $( 'out' );
+	var $in = $('in');
+	var $info = $( 'info' );
+	var $out_container = $( 'out-container' );
+	var $saved = $( 'saved' );
+
+
+	var console = window.console || { log: function () {}, error: function () {} };
+
+	set_options_initial();
+
+	$options_btn.onclick = toggle_options;
+	$go.onclick = go;
+
+	function toggle_options() {
+		if ( $options.className === 'hidden' ) {
+			$options.className = '';
+			$options_btn.className = 'active';
+			$in.className = 'hidden';
+			$go.className = 'hidden';
+		} else {
+			if ( set_options() ) {
+				$options.className = 'hidden';
+				$options_btn.className = '';
+				$in.className = '';
+				$go.className = '';
+			}
+		}
+	}
+
+	function get_options(value) {
+		return Function( 'return (' + (value || $options.value) + ');' )();
+	}
+
+	function set_options() {
+		var old_options = uglify_options;
+		try {
+			uglify_options = get_options();
+			go();
+			return true;
+		} catch (e) {
+			uglify_options = old_options;
+
+			var message;
+			if ( e instanceof SyntaxError ) {
+				message = 'Syntax error: ' + e.message;
+			} else if ( e instanceof DefaultsError ) {
+				message = e.msg;
+			} else {
+				message = 'Unknown error: ' + e;
 			}
 
-			$( 'go' ).onclick = function () {
-				var undef,
-					res = uglify( $('in').value ) || '/* no output! */',
-					$out = $( 'out' );
+			console.log( e );
+			alert( message );
+			return false;
+		}
+	}
 
-				$( 'info' ).className = 'hidden';
-				$( 'out-container' ).className = '';
+	function set_options_initial() {
+		var default_options_text = $options.textContent || $options.innerText;
+		default_options = get_options( default_options_text );
+		try {
+			uglify_options = get_options();
+		} catch ( e ) {
+			// if it didn't work, reset the textarea
+			$options.value = default_options_text;
+			uglify_options = default_options;
+		}
+	}
 
-				if ( $out.textContent !== undef ) {
-					$out.textContent = res;
-				} else {
-					$out.innerText = res;
-				}
-				return false;
-			};
-		</script>
-	</body>
-</html>
+	function go() {
+		var input = $in.value;
+		var res = uglify( input, uglify_options ) || '/* no output! */';
+
+		$info.className = 'hidden';
+		$out_container.className = '';
+
+		if ( $out.textContent !== undef ) {
+			$out.textContent = res;
+		} else {
+			$out.innerText = res;
+		}
+		$saved.innerHTML = ((1 - res.length / input.length) * 100).toFixed(2);
+
+		return false;
+	}
+
+	function $(id) {
+		return document.getElementById( id );
+	}
+
+}());
+</script>
