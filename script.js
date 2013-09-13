@@ -56,12 +56,14 @@ function uglify(code, options) {
 			$options_btn.className = 'active';
 			$in.className = 'hidden';
 			$go.className = 'hidden';
+			$options.focus();
 		} else {
 			if ( set_options() ) {
 				$options.className = 'hidden';
 				$options_btn.className = '';
 				$in.className = '';
 				$go.className = '';
+				$in.focus();
 			}
 		}
 	}

@@ -8,9 +8,8 @@
 	For more information, see https://github.com/mishoo/UglifyJS2/.
  -->
 
-<!-- META DATA, SCRIPTS, STYLES -->
+<!-- META DATA, STYLE -->
 <title>UglifyJS: Online JavaScript minifier</title>
-
 <link rel="stylesheet" href="style.css">
 
 <!-- MAIN CONTENT -->
@@ -19,11 +18,11 @@
 </header>
 <div class="col">
 	<div class="in-container">
-		<textarea id="in" rows="15" cols="80" spellcheck="false">// Your code goes here
+<textarea id="in" rows="15" cols="80" spellcheck="false" tabindex="1">// Your code goes here
 
 
 </textarea>
-		<textarea class="hidden" id="options" rows="15" cols="80" spellcheck="false">// Documentation of the options is available at https://github.com/mishoo/UglifyJS2
+<textarea class="hidden" id="options" rows="15" cols="80" spellcheck="false" tabindex="1">// Documentation of the options is available at https://github.com/mishoo/UglifyJS2
 {
   parse: {
     strict: true,
@@ -70,9 +69,9 @@
   }
 }
 </textarea>
-		<button id="options-btn">Options</button>
+		<button id="options-btn" tabindex="2">Options</button>
 	</div>
-	<button id="go">Minify</button>
+	<button id="go" tabindex="1">Minify</button>
 </div>
 
 <div class="col">
@@ -100,7 +99,7 @@
 </div>
 
 
-<!-- SCRIPT TO HANDLE THE UI -->
+<!-- SCRIPTS -->
 <script src="uglify/lib/utils.js"></script>
 <script src="uglify/lib/ast.js"></script>
 <script src="uglify/lib/parse.js"></script>
@@ -108,8 +107,6 @@
 <script src="uglify/lib/scope.js"></script>
 <script src="uglify/lib/output.js"></script>
 <script src="uglify/lib/compress.js"></script>
-<!-- The following aren't needed:
-<script src="uglify/lib/sourcemap.js"></script>
-<script src="uglify/lib/mozilla-ast.js"></script>
--->
+<!-- The following aren't needed: sourcemap.js, mozilla-ast.js -->
+
 <script src="script.js"></script>
