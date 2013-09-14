@@ -32,13 +32,16 @@ function uglify(code, options) {
 // Handle the UI
 
 var uglify_options;
-var $options_btn = $('options-btn');
-var $go = $('go');
 var $options = $('options');
+var $options_btn = $('options-btn');
+var $options_reset = $('options-reset');
+var $go = $('go');
 var $out = $('out');
+var $out_container = $('out-container');
 var $in = $('in');
 var $info = $('info');
-var $out_container = $('out-container');
+var $error = $('error');
+var $error_container = $('error-container');
 var $saved = $('saved');
 
 function $(id) {
@@ -49,13 +52,16 @@ var console = window.console || { log: function () {}, error: function () {} };
 
 set_options_initial();
 
-$options_btn.onclick = toggle_options;
 $go.onclick = go;
+$options_btn.onclick = toggle_options;
+$options_reset.onclick = reset_options;
+$out.onclick = select_text;
 
 function toggle_options() {
 	if ($options.className === 'hidden') {
 		$options.className = '';
 		$options_btn.className = 'active';
+		$options_reset.className = '';
 		$in.className = 'hidden';
 		$go.className = 'hidden';
 		$options.focus();
@@ -63,6 +69,7 @@ function toggle_options() {
 		if (set_options()) {
 			$options.className = 'hidden';
 			$options_btn.className = '';
+			$options_reset.className = 'hidden';
 			$in.className = '';
 			$go.className = '';
 			$in.focus();
@@ -83,19 +90,14 @@ function set_options() {
 	} catch (e) {
 		uglify_options = old_options;
 
-		var message;
-		if (e instanceof SyntaxError) {
-			message = 'Syntax error: ' + e.message;
-		} else if (e instanceof DefaultsError) {
-			message = e.msg;
-		} else {
-			message = 'Unknown error: ' + e;
-		}
-
-		console.log(e);
-		alert(message);
+		show_error(e);
 		return false;
 	}
+}
+
+function reset_options() {
+	$options.value = $options.textContent || $options.innerText;
+	toggle_options();
 }
 
 function set_options_initial() {
@@ -110,19 +112,78 @@ function set_options_initial() {
 	}
 }
 
+function encodeHTML(str) {
+	return (str + '')
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/"/g, '&quot;');
+}
+
 function go() {
 	var input = $in.value;
-	var res = uglify(input, uglify_options) || '/* no output! */';
 
-	$info.className = 'hidden';
-	$out_container.className = '';
+	try {
+		var res = uglify(input, uglify_options) || '/* no output! */';
 
-	if ($out.textContent !== undefined) {
-		$out.textContent = res;
-	} else {
-		$out.innerText = res;
+		$info.className = $error_container.className = 'hidden';
+		$out_container.className = '';
+
+		if ($out.textContent !== undefined) {
+			$out.textContent = res;
+		} else {
+			$out.innerText = res;
+		}
+		$saved.innerHTML = ((1 - res.length / input.length) * 100).toFixed(2);
+
+	} catch (e) {
+		show_error(e, input);
 	}
-	$saved.innerHTML = ((1 - res.length / input.length) * 100).toFixed(2);
+}
 
-	return false;
+function show_error(e, param) {
+	console.error('Error', e);
+	$info.className = $out_container.className = 'hidden';
+	$error_container.className = '';
+
+	if (e instanceof JS_Parse_Error) {
+		var input = param;
+		var lines = input.split('\n');
+		var line = lines[e.line - 1];
+		e = 'Parse error: <strong>' + encodeHTML(e.message) + '</strong>\n' +
+			'<small>Line ' + e.line + ', column ' + e.col + '</small>\n\n' +
+			(lines[e.line-2] ? (e.line - 1) + ': ' + encodeHTML(lines[e.line-2]) : '') +
+			e.line + ': ' +
+				encodeHTML(line.substr(0, e.col)) +
+				'<mark>' + encodeHTML(line.substr(e.col, 1) || ' ') + '</mark>' +
+				encodeHTML(line.substr(e.col + 1)) + '\n' +
+			(lines[e.line] ? (e.line + 1) + ': ' + encodeHTML(lines[e.line]) : '');
+	} else if (e instanceof DefaultsError) {
+		e = '<strong>' + encodeHTML(e.msg) + '</strong>';
+	} else if (e instanceof Error) {
+		e = e.name + ': <strong>' + encodeHTML(e.message) + '</strong>';
+	} else {
+		e = '<strong>' + encodeHTML(e) + '</strong>';
+	}
+
+	$error.innerHTML = e;
+}
+
+function select_text() {
+	if (document.selection) {
+		// first deselect
+		document.selection.empty();
+
+		// now select
+		var range = document.body.createTextRange();
+		range.moveToElementText(this);
+		range.select();
+	} else if (window.getSelection) {
+		// first deselect
+		window.getSelection().removeAllRanges();
+
+		// now select
+		var range = document.createRange();
+		range.selectNode(this);
+		window.getSelection().addRange(range);
+	}
 }

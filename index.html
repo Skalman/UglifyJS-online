@@ -25,7 +25,7 @@
 <textarea class="hidden" id="options" rows="15" cols="80" spellcheck="false" tabindex="1">// Documentation of the options is available at https://github.com/mishoo/UglifyJS2
 {
   parse: {
-    strict: true,
+    strict: true
   },
   compress: {
     sequences     : true,
@@ -70,6 +70,7 @@
 }
 </textarea>
 		<button id="options-btn" tabindex="2">Options</button>
+        <button class="hidden" id="options-reset" tabindex="2">Reset</button>
 	</div>
 	<button id="go" tabindex="1">Minify</button>
 </div>
@@ -96,6 +97,10 @@
 			The minified output (saved <span id="saved"></span> %)</p>
 		<pre id="out"></pre>
 	</div>
+
+    <div id="error-container" class="hidden">
+        <pre id="error"></pre>
+    </div>
 </div>
 
 
