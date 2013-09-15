@@ -1,20 +1,27 @@
+/*global defaults:false, parse:false, Compressor:false, JS_Parse_Error:false, DefaultsError:false */
+/*jshint globalstrict:true */
+
+'use strict';
+
 // Create a simple wrapper around UglifyJS
 
 var default_options = {};
 function uglify(code, options) {
-	if (!options) {
-		options = {};
-	}
-	var parse_options = defaults(options.parse, default_options.parse, true);
-	var compress_options = defaults(options.compress, default_options.compress, true);
-	var output_options = defaults(options.output, default_options.output, true);
+	// Create copies of the options
+	var parse_options = defaults({}, options.parse);
+	var compress_options = defaults({}, options.compress);
+	var output_options = defaults({}, options.output);
+
+	parse_options = defaults(parse_options, default_options.parse, true);
+	compress_options = defaults(compress_options, default_options.compress, true);
+	output_options = defaults(output_options, default_options.output, true);
 
 	// 1. Parse
-	var toplevel_ast = parse(code);
+	var toplevel_ast = parse(code, parse_options);
 	toplevel_ast.figure_out_scope();
 
 	// 2. Compress
-	var compressor = Compressor(compress_options);
+	var compressor = new Compressor(compress_options);
 	var compressed_ast = toplevel_ast.transform(compressor);
 
 	// 3. Mangle
@@ -57,28 +64,37 @@ $options_btn.onclick = toggle_options;
 $options_reset.onclick = reset_options;
 $out.onclick = select_text;
 
+function show() {
+	for (var i = 0; i < arguments.length; i++) {
+		arguments[i].className = '';
+	}
+}
+
+function hide() {
+	for (var i = 0; i < arguments.length; i++) {
+		arguments[i].className = 'hidden';
+	}
+}
+
 function toggle_options() {
 	if ($options.className === 'hidden') {
-		$options.className = '';
 		$options_btn.className = 'active';
-		$options_reset.className = '';
-		$in.className = 'hidden';
-		$go.className = 'hidden';
+		hide($in, $go);
+		show($options, $options_reset);
 		$options.focus();
 	} else {
 		if (set_options()) {
-			$options.className = 'hidden';
+			hide($options, $options_reset);
 			$options_btn.className = '';
-			$options_reset.className = 'hidden';
-			$in.className = '';
-			$go.className = '';
+			show($in, $go);
 			$in.focus();
 		}
 	}
 }
 
 function get_options(value) {
-	return Function('return (' + (value || $options.value) + ');')();
+	/*jshint evil:true */
+	return new Function('return (' + (value || $options.value) + ');')();
 }
 
 function set_options() {
@@ -88,10 +104,15 @@ function set_options() {
 		go(true);
 		return true;
 	} catch (e) {
-		uglify_options = old_options;
-
-		show_error(e);
-		return false;
+		if (e instanceof JS_Parse_Error) {
+			// the options are actually okay, just the code that's bad
+			show_error(e, $in.value);
+			return true;
+		} else {
+			uglify_options = old_options;
+			show_error(e);
+			return false;
+		}
 	}
 }
 
@@ -134,9 +155,8 @@ function go(throw_on_error) {
 
 	function main() {
 		var res = uglify(input, uglify_options) || '/* no output! */';
-
-		$info.className = $error_container.className = 'hidden';
-		$out_container.className = '';
+		hide($info, $error_container);
+		show($out_container);
 
 		if ($out.textContent !== undefined) {
 			$out.textContent = res;
@@ -149,8 +169,8 @@ function go(throw_on_error) {
 
 function show_error(e, param) {
 	console.error('Error', e);
-	$info.className = $out_container.className = 'hidden';
-	$error_container.className = '';
+	hide($info, $out_container);
+	show($error_container);
 
 	if (e instanceof JS_Parse_Error) {
 		var input = param;
@@ -158,7 +178,7 @@ function show_error(e, param) {
 		var line = lines[e.line - 1];
 		e = 'Parse error: <strong>' + encodeHTML(e.message) + '</strong>\n' +
 			'<small>Line ' + e.line + ', column ' + e.col + '</small>\n\n' +
-			(lines[e.line-2] ? (e.line - 1) + ': ' + encodeHTML(lines[e.line-2]) : '') +
+			(lines[e.line-2] ? (e.line - 1) + ': ' + encodeHTML(lines[e.line-2]) + '\n' : '') +
 			e.line + ': ' +
 				encodeHTML(line.substr(0, e.col)) +
 				'<mark>' + encodeHTML(line.substr(e.col, 1) || ' ') + '</mark>' +
@@ -176,21 +196,24 @@ function show_error(e, param) {
 }
 
 function select_text() {
+	/*global getSelection:false*/
+	/*jshint validthis:true */
+	var range;
 	if (document.selection) {
 		// first deselect
 		document.selection.empty();
 
 		// now select
-		var range = document.body.createTextRange();
+		range = document.body.createTextRange();
 		range.moveToElementText(this);
 		range.select();
 	} else if (window.getSelection) {
 		// first deselect
-		window.getSelection().removeAllRanges();
+		getSelection().removeAllRanges();
 
 		// now select
-		var range = document.createRange();
+		range = document.createRange();
 		range.selectNode(this);
-		window.getSelection().addRange(range);
+		getSelection().addRange(range);
 	}
 }
