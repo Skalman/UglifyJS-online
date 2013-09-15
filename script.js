@@ -85,7 +85,7 @@ function set_options() {
 	var old_options = uglify_options;
 	try {
 		uglify_options = get_options();
-		go();
+		go(true);
 		return true;
 	} catch (e) {
 		uglify_options = old_options;
@@ -119,10 +119,20 @@ function encodeHTML(str) {
 		.replace(/"/g, '&quot;');
 }
 
-function go() {
+function go(throw_on_error) {
 	var input = $in.value;
 
-	try {
+	if (throw_on_error === true) {
+		main();
+	} else {
+		try {
+			main();
+		} catch (e) {
+			show_error(e, input);
+		}
+	}
+
+	function main() {
 		var res = uglify(input, uglify_options) || '/* no output! */';
 
 		$info.className = $error_container.className = 'hidden';
@@ -134,9 +144,6 @@ function go() {
 			$out.innerText = res;
 		}
 		$saved.innerHTML = ((1 - res.length / input.length) * 100).toFixed(2);
-
-	} catch (e) {
-		show_error(e, input);
 	}
 }
 
