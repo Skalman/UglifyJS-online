@@ -122,7 +122,7 @@ function go() {
 	} else {
 		$out.innerText = res;
 	}
-	$saved.innerHTML = ((1 - res.length / input.length) * 100).toFixed(2);
+	$saved.innerHTML = (input.length - res.length) + ' bytes, ' + ((1 - res.length / input.length) * 100).toFixed(2);
 
 	return false;
 }
