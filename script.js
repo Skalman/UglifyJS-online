@@ -49,7 +49,7 @@ var $in = $('in');
 var $info = $('info');
 var $error = $('error');
 var $error_container = $('error-container');
-var $saved = $('saved');
+var $stats = $('stats');
 
 function $(id) {
 	return document.getElementById(id);
@@ -62,7 +62,7 @@ set_options_initial();
 $go.onclick = go;
 $options_btn.onclick = toggle_options;
 $options_reset.onclick = reset_options;
-$out.onclick = select_text;
+$out.onfocus = select_text;
 
 function show() {
 	for (var i = 0; i < arguments.length; i++) {
@@ -154,16 +154,12 @@ function go(throw_on_error) {
 	}
 
 	function main() {
-		var res = uglify(input, uglify_options) || '/* no output! */';
+		var res = uglify(input, uglify_options);
 		hide($info, $error_container);
 		show($out_container);
 
-		if ($out.textContent !== undefined) {
-			$out.textContent = res;
-		} else {
-			$out.innerText = res;
-		}
-		$saved.innerHTML = ((1 - res.length / input.length) * 100).toFixed(2);
+		$out.value = res || '/* no output! */';
+		$stats.innerHTML = res.length + ' bytes, saved ' + ((1 - res.length / input.length) * 100).toFixed(2) + '%';
 	}
 }
 
@@ -196,24 +192,15 @@ function show_error(e, param) {
 }
 
 function select_text() {
-	/*global getSelection:false*/
 	/*jshint validthis:true */
-	var range;
-	if (document.selection) {
-		// first deselect
-		document.selection.empty();
+	var self = this;
+	self.select();
 
-		// now select
-		range = document.body.createTextRange();
-		range.moveToElementText(this);
-		range.select();
-	} else if (window.getSelection) {
-		// first deselect
-		getSelection().removeAllRanges();
-
-		// now select
-		range = document.createRange();
-		range.selectNode(this);
-		getSelection().addRange(range);
-	}
+	self.onmouseup = self.onkeyup = function() {
+		// Prevent further mouseup intervention
+		self.onmouseup = self.onkeyup = null;
+		self.scrollTop = 0;
+		return false;
+	};
+	return false;
 }

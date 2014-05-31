@@ -27,7 +27,8 @@ h1 {
 	width: 50%;
 }
 
-.in-container {
+.in-container, #out-container {
+	position: relative;
 	height: 26em;
 	height: -moz-calc( 100% - 8em );
 	height: -webkit-calc( 100% - 8em );
@@ -44,7 +45,13 @@ h1 {
 	margin-right: 1em;
 }
 
-#in, #options {
+#out-container p {
+	position: absolute;
+	top: -2em;
+	margin: 0;
+}
+
+#in, #options, #out {
 	height: 99%;
 	width: 99%;
 	box-sizing: -moz-border-box;
@@ -59,12 +66,6 @@ h1 {
 	float: right;
 	font-size: 1.2em;
 	font-weight: bold;
-}
-
-#out {
-	border: none;
-	padding: none;
-	background: transparent;
 }
 
 pre {
