@@ -10,7 +10,7 @@ html, body {
 	font: 100%/1.5 Arial, sans-serif;
 }
 
-header {
+.masthead {
 	min-height: 4em;
 }
 

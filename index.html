@@ -1,25 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
-<meta charset="utf-8">
-<!--
-	Wrapper created by Dan Wolff (danwolff.se)
-	This wrapper is in the public domain. Attribution not required but appreciated.
+<html lang="en" no-manifest="cache.appcache">
+<head>
+	<meta charset="utf-8">
+	<!--
+		Wrapper created by Dan Wolff (danwolff.se)
+		This wrapper is in the public domain. Attribution not required but appreciated.
 
-	UglifyJS is released under the BSD license, copyright Mihai Bazon.
-	For more information, see https://github.com/mishoo/UglifyJS2/.
- -->
+		UglifyJS is released under the BSD license, copyright Mihai Bazon.
+		For more information, see https://github.com/mishoo/UglifyJS2/.
+	 -->
 
-<!-- META DATA, STYLE -->
-<title>UglifyJS: Online JavaScript minifier</title>
-<link rel="shortcut icon" href="favicon.ico">
-<link rel="stylesheet" href="style.css">
+	<title>UglifyJS: Online JavaScript minifier</title>
+	<link rel="shortcut icon" href="favicon.ico">
+	<link rel="stylesheet" href="style.css">
+</head>
 
-<!-- MAIN CONTENT -->
-<header>
-	<h1>UglifyJS: Online JavaScript minifier</h1>
-</header>
-<div class="col">
-	<div class="in-container">
+<body>
+
+	<div class="head">
+		<h1>UglifyJS: Online JavaScript minifier</h1>
+	</div>
+	<div class="col">
+		<div class="in-container">
+
 <textarea id="in" rows="15" cols="80" spellcheck="false" tabindex="1" autofocus>// Your code goes here
 
 
@@ -73,49 +76,49 @@
   }
 }
 </textarea>
-		<button id="options-btn" tabindex="2">Options</button>
-		<button class="hidden" id="options-reset" tabindex="2">Reset</button>
-	</div>
-	<button id="go" tabindex="1">Minify</button>
-</div>
-
-<div class="col">
-	<div id="info">
-		<p>
-			<strong>UglifyJS 2</strong> is an excellent tool to help you minify your JavaScript! It's a tried and tested tool, used by libraries such as jQuery.</p>
-
-		<p>
-			This is a simple wrapper for the browser around the minifier; the hard work is done by <a href="http://lisperator.net/">Mihai Bazon</a>.
-			If you need an automated solution, I suggest checking out the <a href="https://github.com/mishoo/UglifyJS2">source code</a>, intended for Node.JS.</p>
-
-		<p>
-			Do you want to help improve this tool? It's on <a href="https://github.com/Skalman/UglifyJS-online">Github</a>.</p>
-
-		<p><small>
-			This wrapper for the browser was created by <a href="http://danwolff.se/">Dan Wolff</a>.</small></p>
-
+			<button id="options-btn" tabindex="2">Options</button>
+			<button class="hidden" id="options-reset" tabindex="2">Use defaults</button>
+		</div>
+		<button id="go" tabindex="1">Minify</button>
 	</div>
 
-	<div id="out-container" class="hidden">
-		<p>
-			The minified output (<span id="stats"></span>)</p>
-		<textarea id="out" spellcheck="false" tabindex="3"></textarea>
+	<div class="col">
+		<div id="info">
+			<p>
+				<strong>UglifyJS 2</strong> is an excellent tool to help you minify your JavaScript! It's a tried and tested tool, used by libraries such as jQuery.</p>
+
+			<p>
+				This is a simple wrapper for the browser around the minifier; the hard work is done by <a href="http://lisperator.net/">Mihai Bazon</a>.
+				If you need an automated solution, I suggest checking out the <a href="https://github.com/mishoo/UglifyJS2">source code</a>, intended for Node.JS.</p>
+
+			<p>
+				Do you want to help improve this tool? It's on <a href="https://github.com/Skalman/UglifyJS-online">Github</a>.</p>
+
+			<p><small>
+				This wrapper for the browser was created by <a href="http://danwolff.se/">Dan Wolff</a>.</small></p>
+
+		</div>
+
+		<div id="out-container" class="hidden">
+			<p>
+				The minified output (<span id="stats"></span>)</p>
+			<textarea id="out" spellcheck="false" tabindex="3"></textarea>
+		</div>
+
+		<div id="error-container" class="hidden">
+			<pre id="error"></pre>
+		</div>
 	</div>
 
-	<div id="error-container" class="hidden">
-		<pre id="error"></pre>
-	</div>
-</div>
+	<script src="uglify/lib/utils.js"></script>
+	<script src="uglify/lib/ast.js"></script>
+	<script src="uglify/lib/parse.js"></script>
+	<script src="uglify/lib/transform.js"></script>
+	<script src="uglify/lib/scope.js"></script>
+	<script src="uglify/lib/output.js"></script>
+	<script src="uglify/lib/compress.js"></script>
+	<!-- The following aren't needed: sourcemap.js, mozilla-ast.js -->
 
-
-<!-- SCRIPTS -->
-<script src="uglify/lib/utils.js"></script>
-<script src="uglify/lib/ast.js"></script>
-<script src="uglify/lib/parse.js"></script>
-<script src="uglify/lib/transform.js"></script>
-<script src="uglify/lib/scope.js"></script>
-<script src="uglify/lib/output.js"></script>
-<script src="uglify/lib/compress.js"></script>
-<!-- The following aren't needed: sourcemap.js, mozilla-ast.js -->
-
-<script src="script.js"></script>
+	<script src="script.js"></script>
+</body>
+</html>

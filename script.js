@@ -101,6 +101,17 @@ function set_options() {
 	var old_options = uglify_options;
 	try {
 		uglify_options = get_options();
+
+		// The options could be parsed. Try to update localStorage.
+		try {
+			var default_options_text = $options.textContent || $options.innerText;
+			if (default_options_text === $options.value)
+				localStorage.removeItem('uglify-options');
+			else
+				localStorage.setItem('uglify-options', $options.value);
+		} catch (e) {}
+
+		// Run Uglify with the new options.
 		go(true);
 		return true;
 	} catch (e) {
@@ -124,6 +135,15 @@ function reset_options() {
 function set_options_initial() {
 	var default_options_text = $options.textContent || $options.innerText;
 	default_options = get_options(default_options_text);
+
+	// If there are options saved with localStorage, load them now.
+	try {
+		var options_text = localStorage.getItem('uglify-options');
+		if (options_text) {
+			$options.value = options_text;
+		}
+	} catch (e) {}
+
 	try {
 		uglify_options = get_options();
 	} catch (e) {

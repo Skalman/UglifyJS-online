@@ -1,0 +1,18 @@
+CACHE MANIFEST
+
+# Appcache version 1
+# (whenever a change is made anywhere, change this version)
+
+./
+favicon.ico
+style.css
+
+uglify/lib/utils.js
+uglify/lib/ast.js
+uglify/lib/parse.js
+uglify/lib/transform.js
+uglify/lib/scope.js
+uglify/lib/output.js
+uglify/lib/compress.js
+
+script.js
