@@ -57,6 +57,7 @@ function $(id) {
 
 var console = window.console || { log: function () {}, error: function () {} };
 
+var default_options_text;
 set_options_initial();
 
 $go.onclick = go;
@@ -104,7 +105,6 @@ function set_options() {
 
 		// The options could be parsed. Try to update localStorage.
 		try {
-			var default_options_text = $options.textContent || $options.innerText;
 			if (default_options_text === $options.value)
 				localStorage.removeItem('uglify-options');
 			else
@@ -128,12 +128,13 @@ function set_options() {
 }
 
 function reset_options() {
-	$options.value = $options.textContent || $options.innerText;
-	toggle_options();
+	$options.value = default_options_text;
+
+	$options_btn.focus();
 }
 
 function set_options_initial() {
-	var default_options_text = $options.textContent || $options.innerText;
+	default_options_text = $options.textContent || $options.innerText;
 	default_options = get_options(default_options_text);
 
 	// If there are options saved with localStorage, load them now.
@@ -193,7 +194,7 @@ function show_error(e, param) {
 		var lines = input.split('\n');
 		var line = lines[e.line - 1];
 		e = 'Parse error: <strong>' + encodeHTML(e.message) + '</strong>\n' +
-			'<small>Line ' + e.line + ', column ' + e.col + '</small>\n\n' +
+			'<small>Line ' + e.line + ', column ' + (e.col + 1) + '</small>\n\n' +
 			(lines[e.line-2] ? (e.line - 1) + ': ' + encodeHTML(lines[e.line-2]) + '\n' : '') +
 			e.line + ': ' +
 				encodeHTML(line.substr(0, e.col)) +
