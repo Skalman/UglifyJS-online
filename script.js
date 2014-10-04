@@ -40,56 +40,70 @@ function uglify(code, options) {
 
 var uglify_options;
 var $options = $('options');
-var $options_btn = $('options-btn');
-var $options_reset = $('options-reset');
-var $go = $('go');
 var $out = $('out');
-var $out_container = $('out-container');
 var $in = $('in');
-var $info = $('info');
 var $error = $('error');
-var $error_container = $('error-container');
 var $stats = $('stats');
+var $body = document.body;
+var $btn_options = $('btn-options');
 
 function $(id) {
 	return document.getElementById(id);
 }
 
-var console = window.console || { log: function () {}, error: function () {} };
+window.console = window.console || { log: function () {}, error: function () {} };
 
 var default_options_text;
 set_options_initial();
 
-$go.onclick = go;
-$options_btn.onclick = toggle_options;
-$options_reset.onclick = reset_options;
+$('header-link').onclick = go_to_start;
+$('btn-go').onclick = go;
+$btn_options.onclick = toggle_options;
+$('btn-options-save').onclick = toggle_options;
+$('btn-options-reset').onclick = reset_options;
 $out.onfocus = select_text;
 
-function show() {
-	for (var i = 0; i < arguments.length; i++) {
-		arguments[i].className = '';
-	}
+
+function is_visible(class_name) {
+	return (' ' + $body.className + ' ').indexOf(' ' + class_name + ' ') >= 0;
 }
 
-function hide() {
-	for (var i = 0; i < arguments.length; i++) {
-		arguments[i].className = 'hidden';
+function hide(class_name) {
+	var names = class_name.split(' ');
+	var cur = ' ' + $body.className + ' ';
+	for (var i = 0; i < names.length; i++) {
+		while (cur.indexOf(' ' + names[i] + ' ') >= 0) {
+			cur = cur.replace(' ' + names[i] + ' ', ' ');
+		}
+	}
+
+	$body.className = cur.replace(/^\s+|\s+$/g, '');
+}
+
+function show(class_name) {
+	$body.className += ' ' + class_name;
+}
+
+function toggle(class_name) {
+	var names = class_name.split(' ');
+	for (var i = 0; i < names.length; i++) {
+		if (is_visible(names[i])) {
+			hide(names[i]);
+		} else {
+			show(names[i]);
+		}
 	}
 }
 
 function toggle_options() {
-	if ($options.className === 'hidden') {
-		$options_btn.className = 'active';
-		hide($in, $go);
-		show($options, $options_reset);
-		$options.focus();
-	} else {
-		if (set_options()) {
-			hide($options, $options_reset);
-			$options_btn.className = '';
-			show($in, $go);
-			$in.focus();
-		}
+	var shouldToggle = true;
+	if (is_visible('s-options')) {
+		// Only toggle if we succeed in setting the options.
+		shouldToggle = set_options();
+	}
+
+	if (shouldToggle) {
+		toggle('s-input s-options');
 	}
 }
 
@@ -129,8 +143,7 @@ function set_options() {
 
 function reset_options() {
 	$options.value = default_options_text;
-
-	$options_btn.focus();
+	$btn_options.focus();
 }
 
 function set_options_initial() {
@@ -176,8 +189,8 @@ function go(throw_on_error) {
 
 	function main() {
 		var res = uglify(input, uglify_options);
-		hide($info, $error_container);
-		show($out_container);
+		hide('s-info s-error');
+		show('s-output');
 
 		$out.value = res || '/* no output! */';
 		$stats.innerHTML = res.length + ' bytes, saved ' + ((1 - res.length / input.length) * 100).toFixed(2) + '%';
@@ -186,8 +199,8 @@ function go(throw_on_error) {
 
 function show_error(e, param) {
 	console.error('Error', e);
-	hide($info, $out_container);
-	show($error_container);
+	hide('s-info s-output');
+	show('s-error');
 
 	if (e instanceof JS_Parse_Error) {
 		var input = param;
@@ -210,6 +223,12 @@ function show_error(e, param) {
 	}
 
 	$error.innerHTML = e;
+}
+
+function go_to_start() {
+	hide('s-options s-error s-output');
+	show('s-input s-info');
+	return false;
 }
 
 function select_text() {

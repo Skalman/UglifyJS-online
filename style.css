@@ -1,5 +1,18 @@
-.hidden {
+* {
+	box-sizing: -moz-border-box;
+	box-sizing: border-box;
+}
+
+.i {
 	display: none;
+}
+
+.s-input .i-input,
+.s-options .i-options,
+.s-info .i-info,
+.s-output .i-output,
+.s-error .i-error {
+	display: block;
 }
 
 html, body {
@@ -10,8 +23,23 @@ html, body {
 	font: 100%/1.5 Arial, sans-serif;
 }
 
-.masthead {
+.header {
 	min-height: 4em;
+	width: 50%;
+}
+	.header a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+.tools {
+	margin-top: 0.5em;
+}
+button {
+	line-height: 1.5;
+}
+.btn-main {
+	font-weight: bold;
 }
 
 h1 {
@@ -20,14 +48,7 @@ h1 {
 	padding: 0.5em;
 }
 
-.col {
-	float: left;
-	height: 100%;
-	margin-top: -4em;
-	width: 50%;
-}
-
-.in-container, #out-container {
+.content {
 	position: relative;
 	height: 26em;
 	height: -moz-calc( 100% - 8em );
@@ -36,16 +57,17 @@ h1 {
 	margin-bottom: 0.25em;
 }
 
-.in-container, #info, #out-container, #error-container {
-	margin-top: 4em;
-	margin-left: 1em;
+.col {
+	float: left;
+	height: 100%;
+	width: 50%;
+	padding: 0 1em;
 }
+	.col > *:first-child {
+		margin-top: 0;
+	}
 
-#info, #out-container, #error-container {
-	margin-right: 1em;
-}
-
-#out-container p {
+.i-output p {
 	position: absolute;
 	top: -2em;
 	margin: 0;
@@ -54,18 +76,10 @@ h1 {
 #in, #options, #out {
 	height: 99%;
 	width: 100%;
-	box-sizing: -moz-border-box;
-	box-sizing: border-box;
 }
 
-#options-btn.active {
-	font-weight: bold;
-}
-
-#go {
+.pull-right {
 	float: right;
-	font-size: 1.2em;
-	font-weight: bold;
 }
 
 pre {
