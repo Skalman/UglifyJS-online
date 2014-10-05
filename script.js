@@ -35,6 +35,12 @@ function uglify(code, options) {
 	return code;
 }
 
+function $(id) {
+	return document.getElementById(id);
+}
+
+window.console = window.console || { log: function () {}, error: function () {} };
+
 
 // Handle the UI
 
@@ -46,22 +52,20 @@ var $error = $('error');
 var $stats = $('stats');
 var $body = document.body;
 var $btn_options = $('btn-options');
+var $cb_as_i_type = $('cb-as-i-type');
 
-function $(id) {
-	return document.getElementById(id);
-}
-
-window.console = window.console || { log: function () {}, error: function () {} };
-
-var default_options_text;
-set_options_initial();
 
 $('header-link').onclick = go_to_start;
 $('btn-go').onclick = go;
 $btn_options.onclick = toggle_options;
 $('btn-options-save').onclick = toggle_options;
 $('btn-options-reset').onclick = reset_options;
+$in.oninput = $in.onkeyup = $in.onblur = $in.onfocus = go_ait;
+$cb_as_i_type.onclick = set_options_ait;
 $out.onfocus = select_text;
+
+var default_options_text;
+set_options_initial();
 
 
 function is_visible(class_name) {
@@ -146,6 +150,15 @@ function reset_options() {
 	$btn_options.focus();
 }
 
+function set_options_ait() {
+	try {
+		if ($cb_as_i_type.checked)
+			localStorage.removeItem('uglify-options-disable-ait');
+		else
+			localStorage.setItem('uglify-options-disable-ait', 1);
+	} catch (e) {}
+}
+
 function set_options_initial() {
 	default_options_text = $options.textContent || $options.innerText;
 	default_options = get_options(default_options_text);
@@ -156,6 +169,7 @@ function set_options_initial() {
 		if (options_text) {
 			$options.value = options_text;
 		}
+		$cb_as_i_type.checked = !localStorage.getItem('uglify-options-disable-ait');
 	} catch (e) {}
 
 	try {
@@ -174,8 +188,10 @@ function encodeHTML(str) {
 		.replace(/"/g, '&quot;');
 }
 
+var last_input;
 function go(throw_on_error) {
 	var input = $in.value;
+	last_input = input;
 
 	if (throw_on_error === true) {
 		main();
@@ -193,8 +209,28 @@ function go(throw_on_error) {
 		show('s-output');
 
 		$out.value = res || '/* no output! */';
-		$stats.innerHTML = res.length + ' bytes, saved ' + ((1 - res.length / input.length) * 100).toFixed(2) + '%';
+		$stats.innerHTML = res.length + ' bytes, saved ' + ((1 - res.length / input.length) * 100 || 0).toFixed(2) + '%';
 	}
+}
+
+// As I type (AIT) functionality. Spend at least half of the time idle.
+var ait_timeout;
+var ait_last_duration = 50;
+function go_ait() {
+	if (!$cb_as_i_type.checked)
+		return;
+
+	var input = $in.value;
+	if (input === last_input)
+		return;
+
+	last_input = input;
+	clearTimeout(ait_timeout);
+	ait_timeout = setTimeout(function () {
+		var start = new Date();
+		go();
+		ait_last_duration = new Date() - start;
+	}, ait_last_duration);
 }
 
 function show_error(e, param) {
@@ -226,6 +262,7 @@ function show_error(e, param) {
 }
 
 function go_to_start() {
+	clearTimeout(ait_timeout);
 	hide('s-options s-error s-output');
 	show('s-input s-info');
 	return false;
