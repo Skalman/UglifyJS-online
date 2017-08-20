@@ -21,6 +21,7 @@ html, body {
 	min-height: 18em;
 	padding: 0;
 	font: 100%/1.5 Arial, sans-serif;
+	background-color: #acc;
 }
 
 .header {
