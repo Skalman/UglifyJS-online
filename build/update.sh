@@ -27,8 +27,8 @@ cd uglify/
 
 PREV_VERSION=$(jq -r '.version' package.json)
 
-if [ "$VERSION" -eq "$PREV_VERSION" ]; then
-	echo "Already on version $VERSION, no update needed"
+if [ "$VERSION" == "$PREV_VERSION" ]; then
+	echo "Already on the latest version, no update needed"
 	exit 0
 fi
 
