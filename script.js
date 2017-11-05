@@ -39,8 +39,6 @@ function $(id) {
 	return document.getElementById(id);
 }
 
-window.console = window.console || { log: function () {}, error: function () {} };
-
 
 // Handle the UI
 
@@ -204,6 +202,11 @@ function go(throw_on_error) {
 	}
 
 	function main() {
+		if (!input || input === $in.textContent) {
+			go_to_start();
+			return;
+		}
+
 		var res = uglify(input, uglify_options);
 		hide('s-info s-error');
 		show('s-output');
