@@ -34,6 +34,11 @@ fi
 
 git pull --ff-only origin "$VERSION_GIT_HEAD"
 
+if [ $? -ne 0 ]; then
+    echo "Exiting, because it was not possible to pull this submodule version"
+    exit 1
+fi
+
 cd ..
 
 
