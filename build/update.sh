@@ -8,7 +8,7 @@ cd ..
 mkdir -p build/tmp/
 
 NPM_JSON="build/tmp/npm-uglify-es.json"
-curl https://registry.npmjs.org/uglify-es > "$NPM_JSON"
+curl --silent --show-error https://registry.npmjs.org/uglify-es > "$NPM_JSON"
 
 VERSION=$(jq -r '."dist-tags".latest' "$NPM_JSON")
 VERSION_GIT_HEAD=$(jq -r '.versions[."dist-tags".latest].gitHead' "$NPM_JSON")
