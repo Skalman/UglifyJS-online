@@ -32,6 +32,12 @@ if [ "$VERSION" == "$PREV_VERSION" ]; then
 	exit 0
 fi
 
+git fetch origin
+if [ $? -ne 0 ]; then
+    echo "Exiting, because it was not possible to fetch remote commits of this submodule"
+    exit 1
+fi
+
 git pull --ff-only origin "$VERSION_GIT_HEAD"
 
 if [ $? -ne 0 ]; then
