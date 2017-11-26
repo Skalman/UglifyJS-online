@@ -6,6 +6,7 @@ CACHE MANIFEST
 favicon.ico
 style.css
 
+uglify/lib/minify.js
 uglify/lib/utils.js
 uglify/lib/ast.js
 uglify/lib/parse.js
