@@ -48,6 +48,15 @@ fi
 cd ..
 
 
+# Update default options
+node build/update-options.js
+
+if [ $? -ne 0 ]; then
+    echo "Exiting, because updating options failed"
+    exit 1
+fi
+
+
 # Run smoketest
 node build/smoketest/smoketest.js
 

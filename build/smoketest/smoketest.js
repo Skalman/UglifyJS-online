@@ -27,9 +27,9 @@ var script = `
 
 	default_options = ${optionsText};
 
-	var result = uglify('alert(1+2+3);', default_options);
+	var result = minify('alert(1+2+3);', default_options);
 
-	if (result !== 'alert(6);') {
+	if (result.code !== 'alert(6);') {
 		throw new Error('Expected "alert(6);", but got "' + result + '"');
 	}
 

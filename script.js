@@ -1,39 +1,9 @@
-/*global defaults:false, parse:false, Compressor:false, JS_Parse_Error:false, DefaultsError:false */
+/*global minify:false, JS_Parse_Error:false */
 /*jshint globalstrict:true */
 
 'use strict';
 
-// Create a simple wrapper around UglifyJS
-
 var default_options = {};
-function uglify(code, options) {
-	// Create copies of the options
-	var parse_options = defaults({}, options.parse);
-	var compress_options = defaults({}, options.compress);
-	var output_options = defaults({}, options.output);
-
-	parse_options = defaults(parse_options, default_options.parse, true);
-	compress_options = defaults(compress_options, default_options.compress, true);
-	output_options = defaults(output_options, default_options.output, true);
-
-	// 1. Parse
-	var toplevel_ast = parse(code, parse_options);
-	toplevel_ast.figure_out_scope();
-
-	// 2. Compress
-	var compressor = new Compressor(compress_options);
-	var compressed_ast = toplevel_ast.transform(compressor);
-
-	// 3. Mangle
-	compressed_ast.figure_out_scope();
-	compressed_ast.compute_char_frequency();
-	compressed_ast.mangle_names();
-
-	// 4. Generate output
-	code = compressed_ast.print_to_string(output_options);
-
-	return code;
-}
 
 function $(id) {
 	return document.getElementById(id);
@@ -50,13 +20,14 @@ var $error = $('error');
 var $stats = $('stats');
 var $body = document.body;
 var $btn_options = $('btn-options');
+var $btn_options_save = $('btn-options-save');
 var $cb_as_i_type = $('cb-as-i-type');
 
 
 $('header-link').onclick = go_to_start;
 $('btn-go').onclick = go;
-$btn_options.onclick = toggle_options;
-$('btn-options-save').onclick = toggle_options;
+$btn_options.onclick = show_options;
+$btn_options_save.onclick = set_options;
 $('btn-options-reset').onclick = reset_options;
 $in.oninput = $in.onkeyup = $in.onblur = $in.onfocus = go_ait;
 $cb_as_i_type.onclick = set_options_ait;
@@ -65,10 +36,6 @@ $out.onfocus = select_text;
 var default_options_text;
 set_options_initial();
 
-
-function is_visible(class_name) {
-	return (' ' + $body.className + ' ').indexOf(' ' + class_name + ' ') >= 0;
-}
 
 function hide(class_name) {
 	var names = class_name.split(' ');
@@ -86,27 +53,9 @@ function show(class_name) {
 	$body.className += ' ' + class_name;
 }
 
-function toggle(class_name) {
-	var names = class_name.split(' ');
-	for (var i = 0; i < names.length; i++) {
-		if (is_visible(names[i])) {
-			hide(names[i]);
-		} else {
-			show(names[i]);
-		}
-	}
-}
-
-function toggle_options() {
-	var shouldToggle = true;
-	if (is_visible('s-options')) {
-		// Only toggle if we succeed in setting the options.
-		shouldToggle = set_options();
-	}
-
-	if (shouldToggle) {
-		toggle('s-input s-options');
-	}
+function show_options() {
+	show('s-options');
+	hide('s-input');
 }
 
 function get_options(value) {
@@ -129,6 +78,9 @@ function set_options() {
 
 		// Run Uglify with the new options.
 		go(true);
+
+		show('s-input');
+		hide('s-options');
 		return true;
 	} catch (e) {
 		if (e instanceof JS_Parse_Error) {
@@ -145,7 +97,7 @@ function set_options() {
 
 function reset_options() {
 	$options.value = default_options_text;
-	$btn_options.focus();
+	set_options();
 }
 
 function set_options_ait() {
@@ -207,12 +159,16 @@ function go(throw_on_error) {
 			return;
 		}
 
-		var res = uglify(input, uglify_options);
+		var res = minify(input, uglify_options);
+		if (res.error) {
+			throw res.error;
+		}
+
 		hide('s-info s-error');
 		show('s-output');
 
-		$out.value = res || '/* no output! */';
-		$stats.innerHTML = res.length + ' bytes, saved ' + ((1 - res.length / input.length) * 100 || 0).toFixed(2) + '%';
+		$out.value = res.code || '/* no output! */';
+		$stats.innerHTML = res.code.length + ' bytes, saved ' + ((1 - res.code.length / input.length) * 100 || 0).toFixed(2) + '%';
 	}
 }
 
@@ -253,8 +209,6 @@ function show_error(e, param) {
 				'<mark>' + encodeHTML(line.substr(e.col, 1) || ' ') + '</mark>' +
 				encodeHTML(line.substr(e.col + 1)) + '\n' +
 			(lines[e.line] ? (e.line + 1) + ': ' + encodeHTML(lines[e.line]) : '');
-	} else if (e instanceof DefaultsError) {
-		e = '<strong>' + encodeHTML(e.msg) + '</strong>';
 	} else if (e instanceof Error) {
 		e = e.name + ': <strong>' + encodeHTML(e.message) + '</strong>';
 	} else {
