@@ -46,7 +46,7 @@ function get_all_opts() {
 		'output',
 		root + 'uglify/lib/output.js',
 		utils_script + 'var options = undefined;',
-		/function OutputStream\([^)]+\) \{\s+options = (defaults\(options, \{[^}]+\}, true\));/
+		/function OutputStream\([^)]+\) \{[\s\S]{0,500}?options = (defaults\(options, \{[^}]+\}, true\));/
 	);
 
 	output.comments = '$COMMENTS$';
