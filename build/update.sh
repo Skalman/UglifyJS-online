@@ -68,11 +68,9 @@ fi
 
 # Update version
 sed -i 's/\(<code id="version">\)[^<]*\(<\/code>\)/\1uglify-es '"$VERSION"'\2/' index.html
-sed -i 's/\(# Appcache version \).\+/\1'"$VERSION"'/' cache.appcache
 
 
 # Commit and push
 git add index.html
-git add cache.appcache
 git add uglify
 git commit -m "Update to uglify-es $VERSION"
