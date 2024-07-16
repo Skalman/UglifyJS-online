@@ -7,45 +7,21 @@ cd ..
 # Get version from NPM
 mkdir -p build/tmp/
 
-NPM_JSON="build/tmp/npm-uglify-es.json"
-curl --silent --show-error https://registry.npmjs.org/uglify-es > "$NPM_JSON"
+NPM_JSON="build/tmp/npm-uglify-js.json"
+curl --silent --show-error https://registry.npmjs.org/uglify-js > "$NPM_JSON"
 
 VERSION=$(jq -r '."dist-tags".latest' "$NPM_JSON")
-VERSION_GIT_HEAD=$(jq -r '.versions[."dist-tags".latest].gitHead' "$NPM_JSON")
 
 rm -r build/tmp/
 
-echo "Latest version is $VERSION ($VERSION_GIT_HEAD)"
+echo "Latest version is $VERSION"
 
 
-# Update to this version
-git clean -fd
-
-git submodule update --init
-
-cd uglify/
-
-PREV_VERSION=$(jq -r '.version' package.json)
-
-if [ "$VERSION" == "$PREV_VERSION" ]; then
-	echo "Already on the latest version, no update needed"
-	exit 0
-fi
-
-git fetch origin
-if [ $? -ne 0 ]; then
-    echo "Exiting, because it was not possible to fetch remote commits of this submodule"
-    exit 1
-fi
-
-git pull --ff-only origin "$VERSION_GIT_HEAD"
-
-if [ $? -ne 0 ]; then
-    echo "Exiting, because it was not possible to pull this submodule version"
-    exit 1
-fi
-
-cd ..
+# Download this version
+curl -fLs "https://github.com/mishoo/UglifyJS/archive/refs/tags/v$VERSION.zip" -o uglify.zip
+unzip -oq uglify.zip
+dir_name=$(unzip -Z -1 uglify.zip | head -n 1)
+mv "$dir_name" uglify
 
 
 # Update default options
@@ -67,10 +43,15 @@ fi
 
 
 # Update version
-sed -i 's/\(<code id="version">\)[^<]*\(<\/code>\)/\1uglify-es '"$VERSION"'\2/' index.html
+sed -i 's/\(<code id="version">\)[^<]*\(<\/code>\)/\1uglify-js '"$VERSION"'\2/' index.html
+CDN="//registry.npmmirror.com/uglify-js/$VERSION/files"
+CDN="${CDN//\//\\\/}"
+sed -i 's/\(<script src="\)uglify/\1'"$CDN"'/gI' index.html
+
+rm -rf uglify
 
 
-# Commit and push
-git add index.html
-git add uglify
-git commit -m "Update to uglify-es $VERSION"
+# Publish
+mkdir public
+cp favicon.ico index.html script.js style.css public
+echo "Update to uglify-js $VERSION"
