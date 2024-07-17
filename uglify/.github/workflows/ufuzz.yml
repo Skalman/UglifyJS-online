@@ -1,0 +1,44 @@
+name: Fuzzing
+on:
+  pull_request:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+  workflow_run:
+    branches: [ master ]
+    types: [ completed ]
+    workflows: [ 'Build testing', CI ]
+env:
+  BASE_URL: https://api.github.com/repos/${{ github.repository }}
+  TOKEN: ${{ github.token }}
+jobs:
+  ufuzz:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - node: '16'
+            os: macos-latest
+          - node: '12'
+            os: ubuntu-latest
+          - node: '8'
+            os: ubuntu-latest
+          - node: '12'
+            os: windows-latest
+          - node: '8'
+            os: windows-latest
+    name: ${{ matrix.node }} ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    env:
+      NODE: ${{ matrix.node }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Perform fuzzing
+        shell: bash
+        run: |
+          . ./test/release/install.sh
+          if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
+            node test/ufuzz/job 5000
+          else
+            node test/ufuzz/job $BASE_URL $TOKEN $GITHUB_RUN_NUMBER
+          fi

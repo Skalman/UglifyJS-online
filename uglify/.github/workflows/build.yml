@@ -1,0 +1,58 @@
+name: Build testing
+on:
+  pull_request:
+  push:
+    branches: [ master ]
+jobs:
+  ufuzz:
+    strategy:
+      fail-fast: false
+      matrix:
+        options:
+          - '--ie -c'
+          - '-mb braces'
+          - '--toplevel -mc'
+          - '-p acorn -mco spidermonkey'
+          - '-mc passes=3,pure_getters,unsafe'
+        script:
+          - acorn.sh
+          - bootstrap.sh
+          - buble.sh
+          - butternut.sh
+          - mathjs.sh
+          - rollup-es.sh
+          - rollup-ts.sh
+          - sucrase.sh
+          - web-tooling-benchmark.sh
+        include:
+          - node: '14'
+            script: acorn.sh
+          - node: '14'
+            script: bootstrap.sh
+          - node: '14'
+            script: buble.sh
+          - node: '14'
+            script: butternut.sh
+          - node: '14'
+            script: mathjs.sh
+          - node: '8'
+            script: rollup-es.sh
+          - node: '14'
+            script: rollup-ts.sh
+          - node: '14'
+            script: sucrase.sh
+          - node: '14'
+            script: web-tooling-benchmark.sh
+    name: ${{ matrix.script }} ${{ matrix.options }}
+    runs-on: ubuntu-latest
+    env:
+      NODE: ${{ matrix.node }}
+      OPTIONS: ${{ matrix.options }}
+      SCRIPT: ${{ matrix.script }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Perform uglify, build & test
+        shell: bash
+        run: |
+          . ./test/release/install.sh
+          ./test/release/$SCRIPT $OPTIONS

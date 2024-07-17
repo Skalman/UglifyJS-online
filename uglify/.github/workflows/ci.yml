@@ -1,0 +1,29 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [ master ]
+jobs:
+  test:
+    strategy:
+      matrix:
+        node: [ '0.10', '0.12', '4', '6', '8', '10', '12', '14', '16', '18', '20' ]
+        os: [ ubuntu-latest, windows-latest ]
+        script: [ compress, mocha, release/benchmark, release/jetstream ]
+    name: ${{ matrix.node }} ${{ matrix.os }} ${{ matrix.script }}
+    runs-on: ${{ matrix.os }}
+    env:
+      NODE: ${{ matrix.node }}
+      TYPE: ${{ matrix.script }}
+      UGLIFY_GITHUB_LAG: 10000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: tmp
+          key: tmp ${{ matrix.script }}
+      - name: Perform tests
+        shell: bash
+        run: |
+          . ./test/release/install.sh
+          node test/$TYPE

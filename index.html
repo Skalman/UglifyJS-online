@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>UglifyJS 3: Online JavaScript minifier</title>
+	<!--
+		Wrapper created by Dan Wolff (danwolff.se)
+		This wrapper is in the public domain. Attribution not required but appreciated.
+
+		UglifyJS is released under the BSD license, copyright Mihai Bazon.
+		For more information, see https://github.com/mishoo/UglifyJS2/.
+	 -->
+
+	<link rel="shortcut icon" href="favicon.ico">
+	<link rel="stylesheet" href="style.css">
+</head>
+
+<body class="s-input s-info">
+
+<div class="header">
+	<h1><a id="header-link" href="./">UglifyJS 3: Online JavaScript minifier</a></h1>
+</div>
+
+
+<div class="content">
+	<div class="col i i-input">
+<textarea id="in" rows="15" cols="80" spellcheck="false" tabindex="1" autofocus>// Your code goes here
+
+
+</textarea>
+		<div class="tools">
+			<button class="btn-main pull-right" id="btn-go" tabindex="1">Minify</button>
+			<button id="btn-options" tabindex="2">Options</button>
+			<label><input id="cb-as-i-type" type="checkbox" checked> As I type</label>
+		</div>
+	</div>
+
+	<div class="col i i-options">
+<textarea id="options" rows="15" cols="80" spellcheck="false" tabindex="1">// Documentation of the options is available at https://github.com/mishoo/UglifyJS2
+{
+  parse: {
+    bare_returns     : false,
+    expression       : false,
+    filename         : null,
+    html5_comments   : true,
+    module           : false,
+    shebang          : true,
+    strict           : false,
+    toplevel         : null
+  },
+  compress: {
+    annotations      : true,
+    arguments        : true,
+    arrows           : true,
+    assignments      : true,
+    awaits           : true,
+    booleans         : true,
+    collapse_vars    : true,
+    comparisons      : true,
+    conditionals     : true,
+    dead_code        : true,
+    default_values   : true,
+    directives       : true,
+    drop_console     : false,
+    drop_debugger    : true,
+    evaluate         : true,
+    expression       : false,
+    functions        : true,
+    global_defs      : false,
+    hoist_exports    : true,
+    hoist_funs       : false,
+    hoist_props      : true,
+    hoist_vars       : false,
+    ie               : false,
+    if_return        : true,
+    imports          : true,
+    inline           : true,
+    join_vars        : true,
+    keep_fargs       : false,
+    keep_fnames      : false,
+    keep_infinity    : false,
+    loops            : true,
+    merge_vars       : true,
+    module           : false,
+    negate_iife      : true,
+    objects          : true,
+    optional_chains  : true,
+    passes           : 1,
+    properties       : true,
+    pure_funcs       : null,
+    pure_getters     : "strict",
+    reduce_funcs     : true,
+    reduce_vars      : true,
+    rests            : true,
+    sequences        : true,
+    side_effects     : true,
+    spreads          : true,
+    strings          : true,
+    switches         : true,
+    templates        : true,
+    top_retain       : null,
+    toplevel         : false,
+    typeofs          : true,
+    unsafe           : false,
+    unsafe_comps     : false,
+    unsafe_Function  : false,
+    unsafe_math      : false,
+    unsafe_proto     : false,
+    unsafe_regexp    : false,
+    unsafe_undefined : false,
+    unused           : true,
+    varify           : true,
+    webkit           : false,
+    yields           : true
+  },
+  mangle: {
+    eval             : false,
+    ie               : false,
+    keep_fargs       : false,
+    keep_fnames      : false,
+    properties       : false,
+    reserved         : [],
+    toplevel         : false,
+    v8               : false,
+    webkit           : false
+  },
+  output: {
+    annotations      : false,
+    ascii_only       : false,
+    beautify         : false,
+    braces           : false,
+    comments         : /@license|@preserve|^!/,
+    extendscript     : false,
+    galio            : false,
+    ie               : false,
+    indent_level     : 4,
+    indent_start     : 0,
+    inline_script    : true,
+    keep_quoted_props: false,
+    max_line_len     : false,
+    preamble         : null,
+    preserve_line    : false,
+    quote_keys       : false,
+    quote_style      : 0,
+    semicolons       : true,
+    shebang          : true,
+    source_map       : null,
+    v8               : false,
+    webkit           : false,
+    width            : 80,
+    wrap_iife        : false
+  },
+  wrap: false
+}
+</textarea>
+		<div class="tools">
+			<button class="btn-main" id="btn-options-save" tabindex="2">Save</button>
+			<button id="btn-options-reset" tabindex="2">Use defaults</button>
+		</div>
+	</div>
+
+	<div class="col i i-info">
+		<p>
+			<strong>UglifyJS 3</strong> is an excellent tool to help you minify your JavaScript!
+			It's a tried and tested tool, used by libraries such as jQuery.</p>
+
+		<p>
+			This is a simple wrapper for the browser around the minifier;
+			the hard work is done by the Uglify team.
+			If you need an automated solution, I suggest checking out the
+			<a href="https://github.com/mishoo/UglifyJS2">source code</a>, intended for Node.JS.</p>
+
+		<p>
+			Do you want to help improve this tool? It's on <a href="https://github.com/Skalman/UglifyJS-online">Github</a>.</p>
+
+		<p><small>
+			This wrapper for the browser was created by <a href="https://danwolff.se/">Dan Wolff</a>.
+
+			Version <code id="version">uglify-js 3.19.0</code>.</small></p>
+
+	</div>
+
+	<div class="col i i-output">
+		<p>
+			The minified output (<span id="stats"></span>)</p>
+		<textarea id="out" spellcheck="false" tabindex="3"></textarea>
+	</div>
+
+	<div class="col i i-error">
+		<pre id="error"></pre>
+	</div>
+</div>
+
+<script src="uglify/lib/minify.js"></script>
+<script src="uglify/lib/utils.js"></script>
+<script src="uglify/lib/ast.js"></script>
+<script src="uglify/lib/parse.js"></script>
+<script src="uglify/lib/transform.js"></script>
+<script src="uglify/lib/scope.js"></script>
+<script src="uglify/lib/output.js"></script>
+<script src="uglify/lib/compress.js"></script>
+<script src="uglify/lib/propmangle.js"></script>
+<!-- The following aren't needed: sourcemap.js, mozilla-ast.js -->
+
+<script src="script.js"></script>
+
+</body>
+</html>
