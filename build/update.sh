@@ -44,14 +44,9 @@ fi
 
 # Update version
 sed -i 's/\(<code id="version">\)[^<]*\(<\/code>\)/\1uglify-js '"$VERSION"'\2/' index.html
-CDN="//registry.npmmirror.com/uglify-js/$VERSION/files"
-CDN="${CDN//\//\\\/}"
-sed -i 's/\(<script src="\)uglify/\1'"$CDN"'/gI' index.html
-
-rm -rf uglify
 
 
 # Publish
 mkdir public
-cp favicon.ico index.html script.js style.css public
+cp -r favicon.ico index.html script.js style.css uglify public
 echo "Update to uglify-js $VERSION"
