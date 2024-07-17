@@ -1,0 +1,26 @@
+name: GitHub Pages
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+
+    if: github.actor == github.repository_owner
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+
+    steps:
+      - uses: actions/checkout@main
+      - name: update
+        run: bash build/update.sh
+      # Deploy the site
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: public
+          force_orphan: true
